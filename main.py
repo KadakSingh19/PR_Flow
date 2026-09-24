@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+
+
+from fastapi import FastAPI,Request
 from dotenv import load_dotenv
 import ngrok
 
@@ -10,7 +12,7 @@ app = FastAPI()
 @app.on_event("startup")
 async def connect_ngrok():
     forwarder = await ngrok.forward(
-        "8000",
+        "127.0.0.1:8000",
         authtoken_from_env=True,
         domain="outpost-blooming-onshore.ngrok-free.dev"
     )
@@ -29,5 +31,7 @@ def read_root():
 
 
 @app.post("/webhooks/github")
-def handle_github_webhook():
+async def handle_github_webhook(request: Request):
+    payload = await request.json()
+    print("Received GitHub webhook" ,payload)
     return {"message": "Webhook received successfully"}
